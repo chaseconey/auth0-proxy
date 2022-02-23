@@ -3,9 +3,6 @@
 ## Script run by on container start -- see Dockerfile
 ##
 
-# Cache in Laravel
-php artisan config:cache
-
 # Make sqlite db available if chosen
 touch database/database.sqlite
 

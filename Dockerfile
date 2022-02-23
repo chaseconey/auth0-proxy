@@ -17,5 +17,6 @@ COPY build/docker/start.sh /start.sh
 
 RUN chmod +x /start.sh
 RUN cd /var/www/html && composer install
+RUN chown -R www-data:www-data /var/www/html/
 
 CMD ["/bin/sh", "-c", "/start.sh"]
