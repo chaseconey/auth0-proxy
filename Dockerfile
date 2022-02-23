@@ -13,6 +13,9 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 COPY . .
 COPY build/docker/vhost.conf /etc/apache2/sites-enabled/000-default.conf
+COPY build/docker/start.sh /start.sh
 
+RUN chmod +x /start.sh
 RUN cd /var/www/html && composer install
 
+CMD ["/bin/sh", "-c", "/start.sh"]
