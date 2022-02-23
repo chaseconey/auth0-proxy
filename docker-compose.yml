@@ -13,6 +13,7 @@ services:
     environment:
       APP_ENV: local
       DB_HOST: mysql
+      DB_CONNECTION: sqlite
 
   mysql:
     image: mysql:8.0
