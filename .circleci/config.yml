@@ -16,7 +16,7 @@ commands:
       - restore_cache:
           keys:
             - composer-deps-{{ checksum "composer.lock" }}-<<parameters.extra_args>>
-      - run: "composer install -n --prefer-dist
+      - run: "composer install -n --prefer-dist"
       - save_cache:
           key: composer-deps-{{ checksum "composer.lock" }}-<<parameters.extra_args>>
           paths:
@@ -71,7 +71,7 @@ jobs:
       - composer_install
       - docker/publish:
           image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
-          tag: 'latest,$CIRCLE_TAG'
+          tag: "latest,$CIRCLE_TAG"
 
   release:
     executor: main
