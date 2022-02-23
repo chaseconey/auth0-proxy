@@ -2,19 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
 
     public function redirect()
     {
-        return \Socialite::driver('auth0')->redirect();
+        return Socialite::driver('auth0')->redirect();
     }
 
     public function callback()
     {
-        $auth0User = \Socialite::driver('auth0')->user();
+        $auth0User = Socialite::driver('auth0')->user();
 
         $user = User::where('auth0_id', $auth0User->id)->first();
 
