@@ -2,60 +2,107 @@
 # See: https://circleci.com/docs/2.0/language-php/
 version: 2
 
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
-jobs:
-  build:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
-    docker:
-      # Specify the version you desire here
-      - image: circleci/php:8.0-node-browsers
+orbs:
+  docker: circleci/docker@2.0.2
 
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # Using the RAM variation mitigates I/O contention
-      # for database intensive operations.
-      # - image: circleci/mysql:5.7-ram
-      #
-      # - image: redis:2.8.19
-
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+commands:
+  composer_install:
+    description: "Restore the composer cache, install, and save the composer cache"
+    parameters:
+      extra_args:
+        type: string
+        default: ""
     steps:
-      - checkout
-
-      - run: sudo apt update # PHP CircleCI 2.0 Configuration File# PHP CircleCI 2.0 Configuration File sudo apt install zlib1g-dev libsqlite3-dev
-      - run: sudo docker-php-ext-install zip
-
-      # Download and cache dependencies
       - restore_cache:
           keys:
-            # "composer.lock" can be used if it is committed to the repo
-            - v1-dependencies-{{ checksum "composer.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
-
-      - run: composer install -n --prefer-dist
-
+            - composer-deps-{{ checksum "composer.lock" }}-<<parameters.extra_args>>
+      - run: "composer install -n --prefer-dist
       - save_cache:
-          key: v1-dependencies-{{ checksum "composer.json" }}
+          key: composer-deps-{{ checksum "composer.lock" }}-<<parameters.extra_args>>
           paths:
-            - ./vendor
+            - vendor
+
+  npm_install:
+    description: "Restore the npm cache, auth, install, and save the npm cache"
+    parameters:
+      working-dir:
+        type: string
+        default: "~/repo"
+    steps:
       - restore_cache:
           keys:
-            - node-v1-{{ checksum "package.json" }}
-            - node-v1-
-      - run: npm install
+            - npm-deps-{{ checksum "package-lock.json" }}
+      - npm/authenticate:
+          working_directory: <<parameters.working-dir>>
+          use_artifactory: true
+          registry_auth_token: ARTIFACTORY_READ_TOKEN
+      - run:
+          name: npm ci
+          command: "[[ -d node_modules ]] || npm ci"
       - save_cache:
-          key: node-v1-{{ checksum "package.json" }}
+          key: npm-deps-{{ checksum "package-lock.json" }}
           paths:
             - node_modules
 
-      # prepare the database
+executors:
+  main:
+    docker:
+      - image: cimg/php:8.0-node
+    working_directory: ~/repo
+
+# Define a job to be invoked later in a workflow.
+# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
+jobs:
+  test:
+    executor: main
+    steps:
+      - checkout
+      - run: sudo apt update # PHP CircleCI 2.0 Configuration File# PHP CircleCI 2.0 Configuration File sudo apt install zlib1g-dev libsqlite3-dev
+      - run: sudo docker-php-ext-install zip
+      - composer_install
+      - npm_install
       - run: touch storage/testing.sqlite
       - run: php artisan migrate --env=testing --database=sqlite --force
-
-      # run tests with phpunit or codecept
       #- run: ./vendor/bin/phpunit
+  build_and_publish:
+    steps:
+      - checkout
+      - npm_install
+      - composer_install
+      - docker/publish:
+          image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
+          tag: 'latest,$CIRCLE_TAG'
+
+  release:
+    executor: main
+    steps:
+      - checkout
+      - npm_install
+      - run:
+          name: Semantic release
+          command: npx semantic-release
+
+workflows:
+  version: 2
+  test-and-publish:
+    jobs:
+      - test:
+          filters:
+            tags:
+              only: /.*/
+
+      - build_and_publish:
+          requires:
+            - test
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+
+  make-release:
+    jobs:
+      - release:
+          filters:
+            branches:
+              only: main
