@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\StaticController;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,9 +16,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
+Route::get('test', function () {
+    return 'ohai';
+});
+Route::get('/auth/redirect', [AuthController::class, 'redirect'])->name('login');
+Route::get('/auth/callback', [AuthController::class, 'callback']);
 
 Route::get('/{path}', [StaticController::class, 'show'])
-    ->where('path', '.*');;
+    ->where('path', '.*')
+    ->middleware('auth');

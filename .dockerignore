@@ -1,0 +1,9 @@
+# Ignore for Copy
+.*
+*.sh
+bin
+cypress
+docs
+node_modules
+tests
+vendor
