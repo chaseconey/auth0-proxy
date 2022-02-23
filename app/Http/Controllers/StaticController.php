@@ -8,14 +8,14 @@ use Illuminate\Support\Facades\Log;
 
 class StaticController extends Controller
 {
-    public function show($path = '')
+    public function show($path = '/')
     {
         $baseUrl = config('proxy.base_url');
         $sanitizedPath = strip_tags($path);
 
         $username = config('proxy.auth.username');
         $password = config('proxy.auth.password');
-        $requestUrl = "{$baseUrl}/{$sanitizedPath}";
+        $requestUrl = "{$baseUrl}{$sanitizedPath}";
 
         Log::info("Requesting from {$requestUrl}");
         $proxiedRequest = Http::withBasicAuth($username, $password)->get($requestUrl);
