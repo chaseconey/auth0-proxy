@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('test', function () {
+Route::get('health', function () {
     return 'ohai';
 });
 Route::get('/auth/redirect', [AuthController::class, 'redirect'])->name('login');
