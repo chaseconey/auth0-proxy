@@ -1,0 +1,92 @@
+version: 2.1
+
+orbs:
+  docker: circleci/docker@2.0.2
+
+executors:
+  main:
+    docker:
+      - image: cimg/php:8.0-node
+    working_directory: ~/repo
+
+commands:
+  composer_install:
+    description: "Restore the composer cache, install, and save the composer cache"
+    parameters:
+      extra_args:
+        type: string
+        default: ""
+    steps:
+      - restore_cache:
+          keys:
+            - composer-deps-{{ checksum "composer.lock" }}-<<parameters.extra_args>>
+      - run: "composer install -n --prefer-dist"
+      - save_cache:
+          key: composer-deps-{{ checksum "composer.lock" }}-<<parameters.extra_args>>
+          paths:
+            - vendor
+
+  npm_install:
+    description: "Restore the npm cache, auth, install, and save the npm cache"
+    parameters:
+      working-dir:
+        type: string
+        default: "~/repo"
+    steps:
+      - restore_cache:
+          keys:
+            - node-v1-{{ checksum "package.json" }}
+            - node-v1-
+      - run: npm install
+      - save_cache:
+          key: node-v1-{{ checksum "package.json" }}
+          paths:
+            - node_modules
+
+jobs:
+  test:
+    executor: main
+    steps:
+      - checkout
+      - run: sudo apt update
+      - composer_install
+      - run: touch database/database.sqlite
+      - run: php artisan migrate --env=testing --database=sqlite --force
+      #- run: ./vendor/bin/phpunit
+
+  release:
+    executor: main
+    steps:
+      - checkout
+      - run:
+          name: Semantic release
+          command: npx semantic-release
+
+workflows:
+  version: 2
+  test-and-publish:
+    jobs:
+      - test:
+          filters:
+            tags:
+              only: /.*/
+
+      - docker/publish:
+          image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
+          tag: "latest,$CIRCLE_TAG"
+          before_build:
+            - composer_install
+          requires:
+            - test
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+
+  make-release:
+    jobs:
+      - release:
+          filters:
+            branches:
+              only: main
