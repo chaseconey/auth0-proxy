@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/chaseconey/auth0-proxy/compare/1.0.0...1.0.1) (2022-02-24)
+
+
+### Bug Fixes
+
+* add executor to docker build job ([d317b6f](https://github.com/chaseconey/auth0-proxy/commit/d317b6f43be10c2a1c6fe4967aa67147dc1f522f))
+
 # 1.0.0 (2022-02-24)
 
 
