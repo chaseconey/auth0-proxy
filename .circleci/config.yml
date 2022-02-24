@@ -58,7 +58,7 @@ jobs:
     executor: main
     steps:
       - checkout
-      - npm install semantic-release @semantic-release/git @semantic-release/changelog -D
+      - run: npm install semantic-release @semantic-release/git @semantic-release/changelog -D
       - run:
           name: Semantic release
           command: npx semantic-release
