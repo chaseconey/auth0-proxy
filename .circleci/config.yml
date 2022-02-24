@@ -50,7 +50,6 @@ jobs:
       - checkout
       - run: sudo apt update
       - composer_install
-      - npm_install
       - run: touch storage/testing.sqlite
       - run: php artisan migrate --env=testing --database=sqlite --force
       #- run: ./vendor/bin/phpunit
@@ -59,7 +58,6 @@ jobs:
     executor: main
     steps:
       - checkout
-      - npm_install
       - run:
           name: Semantic release
           command: npx semantic-release
@@ -77,7 +75,6 @@ workflows:
           image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
           tag: "latest,$CIRCLE_TAG"
           before_build:
-            - npm_install
             - composer_install
           requires:
             - test
