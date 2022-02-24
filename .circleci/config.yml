@@ -55,15 +55,6 @@ jobs:
       - run: touch storage/testing.sqlite
       - run: php artisan migrate --env=testing --database=sqlite --force
       #- run: ./vendor/bin/phpunit
-  build_and_publish:
-    executor: main
-    steps:
-      - checkout
-      - npm_install
-      - composer_install
-      - docker/publish:
-          image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
-          tag: "latest,$CIRCLE_TAG"
 
   release:
     executor: main
@@ -82,6 +73,13 @@ workflows:
           filters:
             tags:
               only: /.*/
+
+      - docker/publish:
+          image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
+          tag: "latest,$CIRCLE_TAG"
+          before_build:
+            - npm_install
+            - composer_install
 
       - build_and_publish:
           requires:
