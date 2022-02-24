@@ -50,7 +50,7 @@ jobs:
       - checkout
       - run: sudo apt update
       - composer_install
-      - run: touch database/testing.sqlite
+      - run: touch database/database.sqlite
       - run: php artisan migrate --env=testing --database=sqlite --force
       #- run: ./vendor/bin/phpunit
 
