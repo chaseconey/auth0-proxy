@@ -80,8 +80,6 @@ workflows:
           before_build:
             - npm_install
             - composer_install
-
-      - build_and_publish:
           requires:
             - test
           filters:
