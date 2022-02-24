@@ -77,6 +77,7 @@ workflows:
           tag: "latest,$CIRCLE_TAG"
           before_build:
             - composer_install
+          executor: main
           requires:
             - test
           filters:
