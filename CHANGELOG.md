@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/chaseconey/auth0-proxy/compare/1.0.1...1.0.2) (2022-02-24)
+
+
+### Bug Fixes
+
+* setup remote docker in build ([52a1b0c](https://github.com/chaseconey/auth0-proxy/commit/52a1b0cc3bb1474d810cd30c6967fdfe6ee67422))
+
 ## [1.0.1](https://github.com/chaseconey/auth0-proxy/compare/1.0.0...1.0.1) (2022-02-24)
 
 
