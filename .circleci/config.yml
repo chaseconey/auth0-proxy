@@ -1,7 +1,13 @@
-version: 2
+version: 2.1
 
 orbs:
   docker: circleci/docker@2.0.2
+
+executors:
+  main:
+    docker:
+      - image: cimg/php:8.0-node
+    working_directory: ~/repo
 
 commands:
   composer_install:
@@ -44,8 +50,7 @@ commands:
 
 jobs:
   test:
-    docker:
-      - image: cimg/php:8.0-node
+    executor: main
     steps:
       - checkout
       - run: sudo apt update
@@ -56,8 +61,7 @@ jobs:
       - run: php artisan migrate --env=testing --database=sqlite --force
       #- run: ./vendor/bin/phpunit
   build_and_publish:
-    docker:
-      - image: cimg/php:8.0-node
+    executor: main
     steps:
       - checkout
       - npm_install
@@ -67,8 +71,7 @@ jobs:
           tag: "latest,$CIRCLE_TAG"
 
   release:
-    docker:
-      - image: cimg/php:8.0-node
+    executor: main
     steps:
       - checkout
       - npm_install
