@@ -35,16 +35,11 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - npm-deps-{{ checksum "package-lock.json" }}
-      - npm/authenticate:
-          working_directory: <<parameters.working-dir>>
-          use_artifactory: true
-          registry_auth_token: ARTIFACTORY_READ_TOKEN
-      - run:
-          name: npm ci
-          command: "[[ -d node_modules ]] || npm ci"
+            - node-v1-{{ checksum "package.json" }}
+            - node-v1-
+      - run: npm install
       - save_cache:
-          key: npm-deps-{{ checksum "package-lock.json" }}
+          key: node-v1-{{ checksum "package.json" }}
           paths:
             - node_modules
 
