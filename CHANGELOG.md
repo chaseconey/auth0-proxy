@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/chaseconey/auth0-proxy/compare/1.0.2...1.0.3) (2022-02-24)
+
+
+### Bug Fixes
+
+* change default database config to sqlite ([58a8f4d](https://github.com/chaseconey/auth0-proxy/commit/58a8f4d03821956b50cd7cb8f4f6ff60bdf782ee))
+
 ## [1.0.2](https://github.com/chaseconey/auth0-proxy/compare/1.0.1...1.0.2) (2022-02-24)
 
 
